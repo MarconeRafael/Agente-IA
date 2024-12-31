@@ -169,6 +169,6 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
-keys
+keys.py
 csvs
 csvs/.
