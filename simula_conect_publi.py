@@ -1,5 +1,6 @@
-
 import pandas as pd
+import os
+
 def collect_campaign_details():
     print("Preencha as informações da campanha:\n")
 
@@ -22,9 +23,22 @@ def collect_campaign_details():
         ),
         "Informações Adicionais": input("Informações Adicionais: ")
     }
+    
     # Criação do DataFrame
     campaign_df = pd.DataFrame([data])
     
-    return campaign_df
-teste = collect_campaign_details()
-print(teste)
+    # Definir o nome e o caminho do arquivo CSV
+    file_name = "campanha_detalhes.csv"
+    file_path = os.path.join(os.getcwd(), file_name)
+    
+    # Salvar o DataFrame em CSV
+    campaign_df.to_csv(file_path, index=False, encoding='utf-8')
+    
+    print(f"Detalhes da campanha salvos em: {file_path}")
+    
+    # Retornar o caminho do arquivo
+    return file_path
+
+# Chamando a função
+#caminho_csv = collect_campaign_details()
+#print(f"Arquivo salvo no caminho: {caminho_csv}")
