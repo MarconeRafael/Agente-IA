@@ -10,11 +10,7 @@ def collect_campaign_details():
         "Público-Alvo": input("Público-Alvo (exemplo: 'Jovens de 18-25 anos'): "),
         "Formato do Conteúdo Desejado": input("Formato do Conteúdo Desejado (exemplo: 'Reels, Stories, etc.'): "),
         "Canal de Divulgação": input("Canal de Divulgação (exemplo: 'Instagram, TikTok'): "),
-        "Data de Início": input("Data de Início da Campanha (formato: DD/MM/AAAA): "),
-        "Data de Término": input("Data de Término da Campanha (formato: DD/MM/AAAA): "),
         "Nicho de Mercado": input("Nicho de Mercado: "),
-        "Tipo de Conteúdo Postado": input("Tipo de Conteúdo Postado (IGG ou UGC): "),
-        "Produtos ou Serviços": input("Detalhes dos produtos ou serviços (incluindo envio e prazos): "),
         "Ações e Comportamentos Esperados do Creator": input(
             "Ações e Comportamentos Esperados do Creator (exemplo: 'Interagir com seguidores, criar conteúdos engajadores'): "
         ),
@@ -28,7 +24,7 @@ def collect_campaign_details():
     campaign_df = pd.DataFrame([data])
     
     # Definir o nome e o caminho do arquivo CSV
-    file_name = "campanha_detalhes.csv"
+    file_name = "csvs/campanha_detalhes.csv"
     file_path = os.path.join(os.getcwd(), file_name)
     
     # Salvar o DataFrame em CSV

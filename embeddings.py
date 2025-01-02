@@ -1,6 +1,6 @@
+import os
 import openai
 import pandas as pd
-import os
 from keys import chave_openai
 
 # Configure a chave da API da OpenAI
@@ -42,6 +42,11 @@ def gerar_e_salvar_embeddings(caminho_arquivo):
             embedding = response['data'][0]['embedding']
             campanha_df.at[index, 'Embedding'] = str(embedding)
 
+        # Verificar e criar o diretório onde o arquivo será salvo, se não existir
+        diretorio = os.path.dirname(caminho_arquivo)
+        if not os.path.exists(diretorio):
+            os.makedirs(diretorio)  # Cria o diretório, se necessário
+
         # Salvar o DataFrame atualizado no mesmo arquivo
         campanha_df.to_csv(caminho_arquivo, index=False, encoding='utf-8')
 
@@ -49,13 +54,3 @@ def gerar_e_salvar_embeddings(caminho_arquivo):
 
     except Exception as e:
         return f"Erro ao gerar e salvar embeddings: {e}"
-
-# Usar a função com o caminho do arquivo gerado anteriormente
-caminho_csv = "caminho_do_arquivo_previamente_salvo.csv"  # Substitua pelo caminho correto
-resultado = gerar_e_salvar_embeddings(caminho_csv)
-
-# Exibir o resultado
-if os.path.exists(resultado):
-    print(f"Arquivo atualizado com embeddings: {resultado}")
-else:
-    print(resultado)
