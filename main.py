@@ -33,8 +33,12 @@ def main():
         print(f"Erro: O arquivo '{caminho_arquivo}' não foi encontrado.")
         return
     
-    campaign_df = pd.read_csv(caminho_arquivo, encoding='utf-8')
-    print("Detalhes da campanha carregados com sucesso.")
+    try:
+        campaign_df = pd.read_csv(caminho_arquivo, encoding='utf-8')
+        print("Detalhes da campanha carregados com sucesso.")
+    except Exception as e:
+        print(f"Erro ao carregar o arquivo CSV: {e}")
+        return
     
     # Processamento
     if not processar_briefing(campaign_df, caminho_arquivo):
@@ -49,8 +53,8 @@ def main():
     diretorio = os.path.dirname(caminho_embeddings)
     if not os.path.exists(diretorio):
         os.makedirs(diretorio)
+    
     print("Gerando e salvando embeddings...")
-
     caminho_atualizado = gerar_e_salvar_embeddings(caminho_embeddings)  # Passando o caminho correto para gerar e salvar os embeddings
     
     if caminho_atualizado:
@@ -58,4 +62,6 @@ def main():
     else:
         print("Erro ao gerar embeddings.")
 
-main()
+# Chamar a função main
+if __name__ == "__main__":
+    main()

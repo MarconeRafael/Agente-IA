@@ -9,14 +9,22 @@ openai.api_key = chave_openai
 # Função para gerar embeddings e salvar no CSV
 def gerar_e_salvar_embeddings(caminho_arquivo):
     try:
-        # Carregar o CSV
+        # Verificar se o diretório do arquivo existe, se não, criar
+        diretorio = os.path.dirname(caminho_arquivo)
+        if not os.path.exists(diretorio):
+            os.makedirs(diretorio)  # Cria o diretório, se necessário
+
+        # Verificar se o arquivo existe
+        if not os.path.exists(caminho_arquivo):
+            # Se o arquivo não existir, cria um CSV vazio com a coluna 'Embedding'
+            df_vazio = pd.DataFrame(columns=['Embedding'])
+            df_vazio.to_csv(caminho_arquivo, index=False, encoding='utf-8')
+
         campanha_df = pd.read_csv(caminho_arquivo)
         
-        # Verificar se a coluna 'Embedding' já existe
-        if 'Embedding' not in campanha_df.columns:
-            campanha_df['Embedding'] = ""
-
         # Criar embeddings para cada linha do DataFrame
+        embeddings = []  # Lista para armazenar os embeddings gerados
+
         for index, row in campanha_df.iterrows():
             # Combine os campos relevantes da campanha em um único texto
             texto_para_embedding = f"""
@@ -33,24 +41,47 @@ def gerar_e_salvar_embeddings(caminho_arquivo):
             """
             
             # Gerar o embedding usando a API da OpenAI
-            response = openai.Embedding.create(
-                input=texto_para_embedding,
-                model="text-embedding-ada-002"
-            )
-            
-            # Salvar o embedding no DataFrame (armazenado como string para o CSV)
-            embedding = response['data'][0]['embedding']
-            campanha_df.at[index, 'Embedding'] = str(embedding)
+            try:
+                response = openai.Embedding.create(
+                    input=texto_para_embedding,
+                    model="text-embedding-ada-002"
+                )
+                
+                # Verificar se a resposta contém o embedding
+                if 'data' in response and len(response['data']) > 0:
+                    embedding = response['data'][0]['embedding']
+                    embeddings.append(embedding)
+                    print(f"Embedding gerado para a linha {index}.")  # Depuração
+                else:
+                    print(f"Nenhum embedding retornado para a linha {index}.")  # Depuração
+                    embeddings.append("Erro ao gerar embedding")
 
-        # Verificar e criar o diretório onde o arquivo será salvo, se não existir
-        diretorio = os.path.dirname(caminho_arquivo)
-        if not os.path.exists(diretorio):
-            os.makedirs(diretorio)  # Cria o diretório, se necessário
+            except openai.error.OpenAIError as e:
+                print(f"Erro na API OpenAI para a linha {index}: {e}")
+                embeddings.append("Erro ao gerar embedding")
 
-        # Salvar o DataFrame atualizado no mesmo arquivo
-        campanha_df.to_csv(caminho_arquivo, index=False, encoding='utf-8')
+        # Criar um novo DataFrame apenas com a coluna 'Embedding'
+        if embeddings:
+            embeddings_df = pd.DataFrame(embeddings, columns=['Embedding'])
+
+            # Salvar o DataFrame com os embeddings
+            embeddings_df.to_csv(caminho_arquivo, index=False, encoding='utf-8')
+            print(f"Embeddings salvos com sucesso em {caminho_arquivo}.")
+        else:
+            print("Nenhum embedding foi gerado.")  # Depuração
 
         return caminho_arquivo
 
     except Exception as e:
         return f"Erro ao gerar e salvar embeddings: {e}"
+
+# Exemplo de chamada da função
+caminho_arquivo = "csvs/embeddings.csv"
+
+# Chama a função para gerar e salvar os embeddings
+resultado = gerar_e_salvar_embeddings(caminho_arquivo)
+
+if "Erro" not in resultado:
+    print(f"Embeddings gerados e salvos em: {resultado}")
+else:
+    print(resultado)
